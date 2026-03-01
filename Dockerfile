@@ -1,8 +1,9 @@
 # 轻量基础镜像，内存占用比官方低50%
 FROM teddysun/v2ray:latest
 
-# 安装依赖（uuidgen、nc）
-RUN apt update && apt install -y netcat-traditional uuid-runtime && rm -rf /var/lib/apt/lists/*
+# 关键修正：Alpine 使用 apk 安装依赖，替换 apt
+# uuidgen -> util-linux；nc -> netcat-openbsd
+RUN apk update && apk add --no-cache util-linux netcat-openbsd && rm -rf /var/cache/apk/*
 
 # 复制启动脚本
 COPY entrypoint.sh /entrypoint.sh
