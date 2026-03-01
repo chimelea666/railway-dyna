@@ -60,12 +60,13 @@ EOF
 # 4. 启动V2Ray并限制内存（关键：防止OOM）
 echo "启动V2Ray，配置文件：/tmp/config.json"
 ulimit -n 1024  # 限制最大连接数
-v2ray run -config /tmp/config.json &
+# 适配Alpine：指定V2Ray可执行文件路径（teddysun/v2ray镜像的V2Ray路径为/usr/bin/v2ray）
+/usr/bin/v2ray run -config /tmp/config.json &
 
-# 5. 保活监听（兼容UptimeRobot，防止休眠）
+# 5. 保活监听（兼容Alpine+UptimeRobot，防止休眠）
 echo "启动保活服务..."
 while true; do
-  # 监听8080端口，响应HTTP请求（供UptimeRobot检测）
-  echo -e "HTTP/1.1 200 OK\n\nV2Ray is running (UUID: $UUID)" | nc -l -p ${PORT:-8080} -q 1
+  # 适配Alpine的nc参数：去掉-q 1，改用-w 1（超时时间）
+  echo -e "HTTP/1.1 200 OK\n\nV2Ray is running (UUID: $UUID)" | nc -l -w 1 -p ${PORT:-8080}
   sleep 5
 done
